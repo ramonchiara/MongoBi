@@ -71,6 +71,23 @@ namespace MongoBI
             Console.WriteLine("Média dos preços: {0:F2}", media);
             Console.WriteLine("Variância: {0:F2}", s2);
             Console.WriteLine("Desvio padrão: {0:F2}", s);
+
+            List<Anuncio> precos = table.Find("{preco: {$exists: 1}}").Sort("{preco: 1}").ToList();
+            int meio = precos.Count / 2;
+
+            double mediana = 0;
+            if (precos.Count % 2 == 0)
+            {
+                double p1 = precos[meio].preco.Value;
+                double p2 = precos[meio + 1].preco.Value;
+                mediana = (p1 + p2) / 2;
+            }
+            else
+            {
+                mediana = precos[meio + 1].preco.Value;
+            }
+
+            Console.WriteLine("Mediana: {0:F2}", mediana);
         }
 
         public static void Show(List<Anuncio> anuncios)

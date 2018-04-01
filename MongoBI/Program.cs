@@ -44,6 +44,33 @@ namespace MongoBI
             {
                 Console.WriteLine(d);
             }
+
+            List<BsonDocument> minmax = table.Aggregate()
+                                             .Match("{preco: {$exists: 1}}")
+                                             .Group("{_id: null, min: {$min: '$preco'}, max: {$max: '$preco'}}")
+                                             .ToList();
+
+            double min = Convert.ToDouble(minmax[0]["min"]);
+            double max = Convert.ToDouble(minmax[0]["max"]);
+
+            List<BsonDocument> mediavar = table.Aggregate()
+                                               .Match("{preco: {$exists: 1}}")
+                                               .Group("{_id: null, media: {$avg: '$preco'}, values: {$push: '$preco'}}")
+                                               .Unwind("values")
+                                               .Project("{media: 1, delta: {$subtract: ['$values', '$media']}}")
+                                               .Project("{media: 1, delta: {$multiply: ['$delta', '$delta']}}")
+                                               .Group("{_id: null, media: {$avg: '$media'}, s2: {$avg: '$delta'}}")
+                                              .ToList();
+
+            double media = Convert.ToDouble(mediavar[0]["media"]);
+            double s2 = Convert.ToDouble(mediavar[0]["s2"]);
+            double s = Math.Sqrt(s2);
+
+            Console.WriteLine("Menor preço: {0:F2}", min);
+            Console.WriteLine("Maior preço: {0:F2}", max);
+            Console.WriteLine("Média dos preços: {0:F2}", media);
+            Console.WriteLine("Variância: {0:F2}", s2);
+            Console.WriteLine("Desvio padrão: {0:F2}", s);
         }
 
         public static void Show(List<Anuncio> anuncios)

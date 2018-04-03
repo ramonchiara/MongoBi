@@ -78,13 +78,13 @@ namespace MongoBI
             double mediana = 0;
             if (precos.Count % 2 == 0)
             {
-                double p1 = precos[meio].preco.Value;
-                double p2 = precos[meio + 1].preco.Value;
+                double p1 = precos[meio - 1].preco.Value;
+                double p2 = precos[meio].preco.Value;
                 mediana = (p1 + p2) / 2;
             }
             else
             {
-                mediana = precos[meio + 1].preco.Value;
+                mediana = precos[meio].preco.Value;
             }
 
             Console.WriteLine("Mediana: {0:F2}", mediana);

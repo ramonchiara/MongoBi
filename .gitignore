@@ -1,2 +1,4 @@
-MongoBI/bin
-MongoBI/obj
+.vs
+MongoBI.userprefs
+*/bin
+*/obj

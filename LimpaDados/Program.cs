@@ -15,12 +15,13 @@ namespace LimpaDados
             IMongoCollection<BsonDocument> table = db.GetCollection<BsonDocument>("anuncios");
 
             List<BsonDocument> anuncios = table.Find("{}").ToList();
-            foreach (BsonDocument a in anuncios)
+            foreach (BsonDocument anuncio in anuncios)
             {
-                CleanBreadcrumb(table, a);
-                CleanData(table, a);
-                CleanDetalhe(table, a, "Condomínio:");
-                CleanDetalhe(table, a, "IPTU:");
+                CleanBreadcrumb(table, anuncio);
+                CleanData(table, anuncio);
+                CleanPreco(table, anuncio);
+                CleanDetalhe(table, anuncio, "Condomínio:");
+                CleanDetalhe(table, anuncio, "IPTU:");
             }
         }
 
@@ -53,6 +54,24 @@ namespace LimpaDados
                 DateTime valor = DateTime.ParseExact(valorAntigo, "d MMMM HH:mm", new CultureInfo("pt-BR"));
 
                 BsonDocument valorNovo = new BsonDocument("data", new BsonDateTime(valor));
+                table.UpdateOne(new BsonDocument("_id", anuncio["_id"]), new BsonDocument("$set", valorNovo));
+            }
+        }
+
+        private static void CleanPreco(IMongoCollection<BsonDocument> table, BsonDocument anuncio)
+        {
+            if (!anuncio.Contains("preco"))
+            {
+                return;
+            }
+
+            BsonType tipo = anuncio["preco"].BsonType;
+            if (tipo == BsonType.Int32)
+            {
+                int valorAntigo = anuncio["preco"].AsInt32;
+                double valor = Convert.ToDouble(valorAntigo);
+
+                BsonDocument valorNovo = new BsonDocument("preco", new BsonDouble(valor));
                 table.UpdateOne(new BsonDocument("_id", anuncio["_id"]), new BsonDocument("$set", valorNovo));
             }
         }
